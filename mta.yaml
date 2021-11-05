@@ -1,0 +1,50 @@
+ID: example
+_schema-version: 3.2.0
+version: 0.0.1
+parameters:
+  enable-parallel-deployments: true
+modules:
+  - name: example
+    type: nodejs
+    path: approuter
+    parameters:
+      disk-quota: 512M
+      memory: 512M
+    requires:
+      - name: example_destination
+    build-parameters:
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:ui --prefix ..
+resources:
+  - name: example_destination
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: lite
+      service: destination
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+  - name: example_xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service-plan: application
+      service: xsuaa
+      config:
+        xsappname: example-xsuaa-${space}
+        tenant-mode: dedicated
+        description: "example XSUAA"
+        scopes:
+          - name: "uaa.user"
+            description: "UAA"
+        role-templates:
+          - name: "Token_Exchange"
+            description: "UAA"
+            scope-references:
+              - "uaa.user"
+        oauth2-configuration:
+          redirect-uris:
+            - "http://localhost:*/**"
+            - "http*://*.*.trial.applicationstudio.cloud.sap/**"
+            - "http*://*.cfapps.*.hana.ondemand.com/**"
