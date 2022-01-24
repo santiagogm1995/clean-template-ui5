@@ -12,6 +12,7 @@ modules:
       memory: 512M
     requires:
       - name: example_destination
+      - name: example_xsuaa
     build-parameters:
       builder: custom
       commands:
